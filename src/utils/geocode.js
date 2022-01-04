@@ -1,0 +1,33 @@
+const request = require('postman-request')
+
+const geocode = (address, callback) => {
+    const url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + encodeURIComponent(address) + '.json?access_token=pk.eyJ1IjoiYmFpbnRvbnciLCJhIjoiY2tkdGd5bmw2MXl1dTJ6bWh4ZnhxMWY4aiJ9.f0GiPyR41hmMGBVVppYvyA&limit=1'
+    const plainUrl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/NewYork.json?access_token=pk.eyJ1IjoiYmFpbnRvbnciLCJhIjoiY2tkdGd5bmw2MXl1dTJ6bWh4ZnhxMWY4aiJ9.f0GiPyR41hmMGBVVppYvyA&limit=1'
+    
+    if (!address) {
+        console.log('Search not complete, please provide an address')
+    } else {
+        request({ url, json: true }, (error, response) => {
+            if (error) {
+                callback('Unable to connect to location services!', undefined)
+            } else if (response.body.features.length === 0) {
+                callback('Location not found, please try another search.', undefined)
+            } else {
+                const { center: centerArr, place_name } = response.body.features[0]
+                console.log('response.body.features: ', response.body.features)
+                console.log('centerArr: ', centerArr, 'place_name: ', place_name)
+                // console.log('response.body.features[0].context[2].text: ', response.body.features[0].context[2].text)
+                // const general_location = response.body.features[0].context[2].text + ', ' + response.body.features[0].context[3].text
+
+                callback(undefined, {
+                    latitude: centerArr[1],
+                    longitude: centerArr[0],
+                    location: place_name
+                })
+            }
+        })
+    }
+    
+}
+
+module.exports = geocode
